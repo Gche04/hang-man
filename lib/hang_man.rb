@@ -1,6 +1,5 @@
 require 'yaml'
 
-
 class HangMan
     def initialize(player_name, player_password)
         @computer_selection = ""
@@ -20,6 +19,7 @@ class HangMan
         puts ""
 
         until @count < 1 || !@status.include?("-")
+            puts ""
             puts "guess a letter between a - z"
             puts "to save progess type 'save'"
             puts ""
@@ -61,7 +61,9 @@ class HangMan
     
     def to_load
         puts "to load progess type 'load'"
+        puts "if not, type anything else"
         reply = gets.chomp.downcase
+        puts ""
         load_progress if reply == 'load'
     end
 
@@ -109,53 +111,3 @@ class HangMan
         end
     end
 end
-
-name = "gche"
-pw = "0000"
-
-p = HangMan.new(name, pw)
-p.start_game
-
-=begin
-class A
-    def initialize(string, num)
-        @string = string
-        @num = num
-        @val = ''
-    end
-
-    def do
-        @val = "#{@string} #{@num}" 
-        @num += 1
-    end
-
-    def outpt
-        puts @val
-    end
-
-    def to_s
-        "#{@string} #{@num} #{@val}"        
-    end
-
-    def ser
-        #YAML.dump ({
-            #:string => @string,
-            #:num => @num,
-            #:val => @val
-        #})
-        ym = {:string => @string, :num => @num}
-        File.open("/home/gche/repos/hang-man/#{@string}#{@num}.yml", "w") { |file|
-            file.write(ym.to_yaml)
-        }
-
-        #File.write("#{@string}#{@num}.txt", ym)
-    end
-
-    def self.de_ser
-        dr = "/home/gche/repos/hang-man/#{@string}#{@num}.yml"
-        data = YAML.load(File.read(dr))
-        #p data
-        self.new(data[:string], data[:num])
-    end
-end
-=end
