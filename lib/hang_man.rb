@@ -4,7 +4,7 @@ class HangMan
     def initialize(player_name, player_password)
         @computer_selection = ""
         @status = ""
-        @count = 0
+        @count = 10
         @player_name = player_name
         @player_password = player_password
     end
@@ -12,13 +12,14 @@ class HangMan
     def start_game
         computer_word
         create_dash
-        to_load if File.exist?("/home/gche/repos/hang-man/#{@player_name}#{@player_password}.yml")
-        
-        puts "status >> #{@status}"
-        puts "tries remaining --> #{@count}"
-        puts ""
+        to_load if File.exist?("/home/gche/repos/hang-man/saved/#{@player_name}#{@player_password}.yml")
 
         until @count < 1 || !@status.include?("-")
+
+            puts ""
+            puts "status >> #{@status}"
+            puts "tries remaining --> #{@count}"
+
             puts ""
             puts "guess a letter between a - z"
             puts "to save progess type 'save'"
@@ -32,30 +33,33 @@ class HangMan
 
             if user_pick == "save"
                 save_progress
-                next
+                redo
             end
 
             puts ""
             update_status(user_pick)
-            
+
+            if comp_word_includes_letter(user_pick)
+                break unless @status.include?("-")
+                redo 
+            end
+
             @count -= 1
-            puts "status >> #{@status}"
-            puts "tries remaining --> #{@count}"
         end
 
         if @count < 1
             puts "You lose, you get hanged!!"
             puts "hidden word is #{@computer_selection}"
         else
+            puts @computer_selection
             puts "You win!!, you are safe!"
         end
         delete_file
     end
 
-
     private
     def delete_file
-        data = "/home/gche/repos/hang-man/#{@player_name}#{@player_password}.yml"
+        data = "/home/gche/repos/hang-man/saved/#{@player_name}#{@player_password}.yml"
         File.delete(data) if File.exist?(data) 
     end
     
@@ -72,13 +76,13 @@ class HangMan
             :status => @status,
             :count => @count}
 
-        File.open("/home/gche/repos/hang-man/#{@player_name}#{@player_password}.yml", "w") { |file|
+        File.open("/home/gche/repos/hang-man/saved/#{@player_name}#{@player_password}.yml", "w") { |file|
             file.write(game_state.to_yaml)
         }
     end
 
     def load_progress
-        dir = "/home/gche/repos/hang-man/#{@player_name}#{@player_password}.yml"
+        dir = "/home/gche/repos/hang-man/saved/#{@player_name}#{@player_password}.yml"
         data = YAML.load(File.read(dir))
         
         @computer_selection = data[:computer_selection]
@@ -102,12 +106,16 @@ class HangMan
         for i in 1..@computer_selection.length-1 do
             @status += '-'
         end
-        @count = @computer_selection.length + 6
     end
 
     def update_status(letter)
         for i in 0..@computer_selection.length-1 do
             @status[i] = letter if @computer_selection[i] == letter
         end
+    end
+
+    def comp_word_includes_letter(letter)
+        return true if @computer_selection.include?(letter)
+        return false
     end
 end
